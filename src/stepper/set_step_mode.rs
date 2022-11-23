@@ -1,4 +1,5 @@
 use core::{convert::Infallible, task::Poll};
+use tracing::*;
 
 use fugit::TimerDurationU32 as TimerDuration;
 use fugit_timer::Timer as TimerTrait;
@@ -73,6 +74,7 @@ where
     > {
         match self.state {
             State::Initial => {
+                trace!("apply mode config");
                 self.driver
                     .apply_mode_config(self.step_mode)
                     .map_err(|err| SignalError::Pin(err))?;
@@ -89,6 +91,7 @@ where
             }
             State::ApplyingConfig => match self.timer.wait() {
                 Ok(()) => {
+                    trace!("re-enabling driver after mod change");
                     self.driver
                         .enable_driver()
                         .map_err(|err| SignalError::Pin(err))?;

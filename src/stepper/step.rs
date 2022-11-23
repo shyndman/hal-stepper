@@ -1,3 +1,4 @@
+use crate::tracing::*;
 use core::task::Poll;
 
 use embedded_hal::digital::ErrorType;
@@ -68,6 +69,7 @@ where
     > {
         match self.state {
             State::Initial => {
+                trace!("starting step pulse");
                 // Start step pulse
                 self.driver
                     .step()
@@ -77,7 +79,7 @@ where
 
                 let ticks: TimerDuration<TIMER_HZ> =
                     Driver::PULSE_LENGTH.convert();
-
+                trace!("waiting for pulse length ({}ns)", ticks.to_nanos());
                 self.timer
                     .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
@@ -88,6 +90,8 @@ where
             State::PulseStarted => {
                 match self.timer.wait() {
                     Ok(()) => {
+                        trace!("ending step pulse");
+
                         // End step pulse
                         self.driver
                             .step()

@@ -1,3 +1,4 @@
+use crate::tracing::*;
 use core::task::Poll;
 
 use embedded_hal::digital::ErrorType;
@@ -71,6 +72,7 @@ where
     > {
         match self.state {
             State::Initial => {
+                trace!("setting direction");
                 match self.direction {
                     Direction::Forward => self
                         .driver
@@ -88,6 +90,7 @@ where
 
                 let ticks: TimerDuration<TIMER_HZ> =
                     Driver::SETUP_TIME.convert();
+                trace!("waiting setup to complete ({}ns)", ticks.to_nanos());
                 self.timer
                     .start(ticks)
                     .map_err(|err| SignalError::Timer(err))?;
