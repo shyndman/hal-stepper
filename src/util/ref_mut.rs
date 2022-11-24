@@ -8,7 +8,9 @@ use fugit::{
 };
 use fugit_timer::Timer;
 
-use crate::traits::{MotionControl, SetDirection, SetStepMode, Step};
+use crate::traits::{
+    MotionControl, SetDirection, SetSleepMode, SetStepMode, Step,
+};
 
 /// Generic wrapper around a mutable reference
 ///
@@ -118,5 +120,20 @@ where
 
     fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
         self.0.step()
+    }
+}
+
+impl<'r, T> SetSleepMode for RefMut<'r, T>
+where
+    T: SetSleepMode,
+{
+    const SETUP_TIME: Nanoseconds = T::SETUP_TIME;
+    const WAKE_UP_TIME: Nanoseconds = T::WAKE_UP_TIME;
+
+    type Sleep = T::Sleep;
+    type Error = T::Error;
+
+    fn sleep(&mut self) -> Result<&mut Self::Sleep, Self::Error> {
+        self.0.sleep()
     }
 }

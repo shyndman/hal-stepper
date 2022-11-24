@@ -1,6 +1,7 @@
 mod error;
 mod move_to;
 mod set_direction;
+mod set_sleep_mode;
 mod set_step_mode;
 mod step;
 
@@ -8,6 +9,7 @@ pub use self::{
     error::{Error, SignalError},
     move_to::MoveToFuture,
     set_direction::SetDirectionFuture,
+    set_sleep_mode::SetSleepModeFuture,
     set_step_mode::SetStepModeFuture,
     step::StepFuture,
 };
@@ -20,8 +22,9 @@ use fugit_timer::Timer as TimerTrait;
 
 use crate::{
     traits::{
-        EnableDirectionControl, EnableMotionControl, EnableStepControl,
-        EnableStepModeControl, MotionControl, SetDirection, SetStepMode, Step,
+        EnableDirectionControl, EnableMotionControl, EnableSleepModeControl,
+        EnableStepControl, EnableStepModeControl, MotionControl, SetDirection,
+        SetSleepMode, SetStepMode, Step,
     },
     util::ref_mut::RefMut,
     Direction,
@@ -298,6 +301,62 @@ impl<Driver> Stepper<Driver> {
         Timer: TimerTrait<TIMER_HZ>,
     {
         StepFuture::new(RefMut(&mut self.driver), RefMut(timer))
+    }
+
+    /// Enable sleep mode control
+    ///
+    /// Consumes this instance of `Stepper` and returns a new instance that
+    /// provides control over the motor sleep mode. Once this method has been
+    /// called, the [`Stepper::set_sleep_mode`] method becomes available.
+    ///
+    /// Takes the hardware resources that are required for controlling the
+    /// sleep mode as an argument. What exactly those are depends on the specific
+    /// driver. Typically it's going to be the output pin that is connected to
+    /// the hardware's DIR pin.
+    ///
+    /// This method is only available, if the driver supports enabling sleep mode
+    /// control. It might no longer be available, once sleep mode control has
+    /// been enabled.
+    pub fn enable_sleep_mode_control<Resources>(
+        self,
+        res: Resources,
+    ) -> Stepper<Driver::WithSleepModeControl>
+    where
+        Driver: EnableSleepModeControl<Resources>,
+    {
+        Stepper {
+            driver: self.driver.enable_sleep_mode_control(res),
+        }
+    }
+
+    /// Put the stepper to sleep
+    ///
+    /// You might need to call [`Stepper::enable_sleep_mode_control`] to make
+    /// this method available.
+    pub fn sleep<'r, Timer, const TIMER_HZ: u32>(
+        &'r mut self,
+        timer: &'r mut Timer,
+    ) -> SetSleepModeFuture<RefMut<'r, Driver>, RefMut<'r, Timer>, TIMER_HZ>
+    where
+        Driver: SetSleepMode,
+        Timer: TimerTrait<TIMER_HZ>,
+    {
+        SetSleepModeFuture::new(true, RefMut(&mut self.driver), RefMut(timer))
+    }
+
+    /// Put the stepper to sleep
+    ///
+    /// You might need to call [`Stepper::enable_sleep_mode_control`] to make
+    /// this method available.
+    pub fn wakeup<'r, Timer, const TIMER_HZ: u32>(
+        &'r mut self,
+        timer: &'r mut Timer,
+    ) -> SetSleepModeFuture<RefMut<'r, Driver>, RefMut<'r, Timer>, TIMER_HZ>
+    where
+        Driver: SetSleepMode,
+        Timer: TimerTrait<TIMER_HZ>,
+    {
+        SetSleepModeFuture::new(false, RefMut(&mut self.driver), RefMut(timer))
     }
 
     /// Returns the step pulse length of the wrapped driver/controller

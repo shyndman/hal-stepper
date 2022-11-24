@@ -178,3 +178,38 @@ pub trait MotionControl {
     /// called again, until starting another motion.
     fn update(&mut self) -> Result<bool, Self::Error>;
 }
+
+/// Enables a driver to toggle a low power consumption mode, for when the motor
+/// is not in use.
+///
+/// The `Resources` type parameter defines the hardware resources required for
+/// sleep_mode control.
+pub trait EnableSleepModeControl<Resources> {
+    /// The type of the driver after sleep mode control has been enabled
+    type WithSleepModeControl: SetSleepMode;
+
+    /// Enable sleep mode control
+    fn enable_sleep_mode_control(
+        self,
+        res: Resources,
+    ) -> Self::WithSleepModeControl;
+}
+
+/// Implemented by drivers that support toggling a low-power sleep mode
+pub trait SetSleepMode {
+    /// The time that the SLEEP signal must be held for a change to apply
+    const SETUP_TIME: Nanoseconds;
+
+    /// The amount of time required to wake up the driver (ie, when it is ready to receive
+    /// a STEP)
+    const WAKE_UP_TIME: Nanoseconds;
+
+    /// The type of the SLEEP pin
+    type Sleep: OutputPin;
+
+    /// The error that can occur while accessing the SLEEP pin
+    type Error;
+
+    /// Provides access to the SLEEP pin
+    fn sleep(&mut self) -> Result<&mut Self::Sleep, Self::Error>;
+}

@@ -12,13 +12,15 @@
 use core::convert::Infallible;
 
 use embedded_hal::digital::{OutputPin, PinState};
+use fugit::MillisDurationU32 as Milliseconds;
 use fugit::NanosDurationU32 as Nanoseconds;
 
 use crate::{
     step_mode::StepMode16,
     traits::{
-        EnableDirectionControl, EnableStepControl, EnableStepModeControl,
-        SetDirection, SetStepMode, Step as StepTrait,
+        EnableDirectionControl, EnableSleepModeControl, EnableStepControl,
+        EnableStepModeControl, SetDirection, SetSleepMode, SetStepMode,
+        Step as StepTrait,
     },
 };
 
@@ -208,5 +210,51 @@ where
 
     fn step(&mut self) -> Result<&mut Self::Step, Self::Error> {
         Ok(&mut self.step)
+    }
+}
+
+impl<Sleep, OutputPinError> EnableSleepModeControl<Sleep>
+    for A4988<(), (), Sleep, (), (), (), (), (), ()>
+where
+    Sleep: OutputPin<Error = OutputPinError>,
+{
+    type WithSleepModeControl = A4988<(), (), Sleep, (), (), (), (), (), ()>;
+
+    fn enable_sleep_mode_control(
+        self,
+        sleep: Sleep,
+    ) -> Self::WithSleepModeControl {
+        A4988 {
+            enable: self.enable,
+            fault: self.fault,
+            sleep,
+            reset: self.reset,
+            mode0: self.mode0,
+            mode1: self.mode1,
+            mode2: self.mode2,
+            step: self.step,
+            dir: self.dir,
+        }
+    }
+}
+
+impl<Sleep, OutputPinError> SetSleepMode
+    for A4988<(), (), Sleep, (), (), (), (), (), ()>
+where
+    Sleep: OutputPin<Error = OutputPinError>,
+{
+    // Timing Requirements (page 6)
+    // https://www.pololu.com/file/0J450/A4988.pdf
+    const SETUP_TIME: Nanoseconds = Nanoseconds::from_ticks(200);
+
+    // Sleep mode (page 10)
+    // https://www.pololu.com/file/0J450/A4988.pdf
+    const WAKE_UP_TIME: Nanoseconds = Milliseconds::from_ticks(1).convert();
+
+    type Sleep = Sleep;
+    type Error = Infallible;
+
+    fn sleep(&mut self) -> Result<&mut Self::Sleep, Self::Error> {
+        Ok(&mut self.sleep)
     }
 }
