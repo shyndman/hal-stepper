@@ -106,9 +106,6 @@ where
         &mut self,
         step_mode: Self::StepMode,
     ) -> Result<(), Self::Error> {
-        // Reset the device's internal logic and disable the h-bridge drivers.
-        self.reset.set_low()?;
-
         use PinState::*;
         use StepMode16::*;
         let (mode0, mode1, mode2) = match step_mode {
@@ -128,7 +125,7 @@ where
     }
 
     fn enable_driver(&mut self) -> Result<(), Self::Error> {
-        self.reset.set_high()
+        Ok(())
     }
 }
 
