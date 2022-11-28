@@ -20,10 +20,10 @@
 //!
 //! [`Stepper`]: crate::Stepper
 
+use crate::step_mode::StepMode;
+use core::fmt;
 use embedded_hal::digital::OutputPin;
 use fugit::NanosDurationU32 as Nanoseconds;
-
-use crate::step_mode::StepMode;
 
 /// Enable microstepping mode control for a driver
 ///
