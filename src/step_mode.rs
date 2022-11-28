@@ -6,8 +6,12 @@ use paste::paste;
 
 /// Implemented for all step mode enums
 pub trait StepMode:
-    Into<u16> + TryFrom<u16, Error = InvalidStepModeError> + Copy
+    Into<u16> + TryFrom<u16, Error = InvalidStepModeError> + Copy + Eq
 {
+    /// The highest step base supported by this step mode, numerically. For example, in
+    /// StepMode16 this would be 16.
+    const MAX_STEP_BASE: u16;
+
     /// The type of the iterator returned by [`StepMode::iter`]
     type Iter: Iterator<Item = Self>;
 
@@ -145,6 +149,8 @@ macro_rules! generate_step_mode_enums {
             }
 
             impl StepMode for [<StepMode $max>] {
+                const MAX_STEP_BASE: u16 = $max;
+
                 // It would be nice to avoid the custom iterator and use
                 // `iter::from_fn` instead. That would require `impl Iterator`
                 // here, which is not supported yet. Tracking issue:
