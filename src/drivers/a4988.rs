@@ -29,9 +29,8 @@ use crate::{
 /// Users are not expected to use this API directly, except to create an
 /// instance using [`A4988::new`]. Please check out
 /// [`Stepper`](crate::Stepper) instead.
-pub struct A4988<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir> {
+pub struct A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir> {
     enable: Enable,
-    fault: Fault,
     sleep: Sleep,
     reset: Reset,
     mode0: Mode0,
@@ -41,12 +40,11 @@ pub struct A4988<Enable, Fault, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir> {
     dir: Dir,
 }
 
-impl A4988<(), (), (), (), (), (), (), (), ()> {
+impl A4988<(), (), (), (), (), (), (), ()> {
     /// Create a new instance of `A4988`
     pub fn new() -> Self {
         Self {
             enable: (),
-            fault: (),
             sleep: (),
             reset: (),
             mode0: (),
@@ -58,9 +56,9 @@ impl A4988<(), (), (), (), (), (), (), (), ()> {
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
     EnableStepModeControl<(Reset, Mode0, Mode1, Mode2)>
-    for A4988<(), (), (), (), (), (), (), Step, Dir>
+    for A4988<Enable, Sleep, (), (), (), (), Step, Dir>
 where
     Reset: OutputPin<Error = OutputPinError>,
     Mode0: OutputPin<Error = OutputPinError>,
@@ -69,7 +67,7 @@ where
     OutputPinError: core::fmt::Debug,
 {
     type WithStepModeControl =
-        A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+        A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>;
 
     fn enable_step_mode_control(
         self,
@@ -77,7 +75,6 @@ where
     ) -> Self::WithStepModeControl {
         A4988 {
             enable: self.enable,
-            fault: self.fault,
             sleep: self.sleep,
             reset,
             mode0,
@@ -89,8 +86,8 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> SetStepMode
-    for A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    SetStepMode for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Reset: OutputPin<Error = OutputPinError>,
     Mode0: OutputPin<Error = OutputPinError>,
@@ -133,19 +130,18 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
     EnableDirectionControl<Dir>
-    for A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, ()>
+    for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, ()>
 where
     Dir: OutputPin<Error = OutputPinError>,
 {
     type WithDirectionControl =
-        A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+        A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>;
 
     fn enable_direction_control(self, dir: Dir) -> Self::WithDirectionControl {
         A4988 {
             enable: self.enable,
-            fault: self.fault,
             sleep: self.sleep,
             reset: self.reset,
             mode0: self.mode0,
@@ -157,8 +153,8 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> SetDirection
-    for A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    SetDirection for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Dir: OutputPin<Error = OutputPinError>,
 {
@@ -174,19 +170,18 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
     EnableStepControl<Step>
-    for A4988<(), (), (), Reset, Mode0, Mode1, Mode2, (), Dir>
+    for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, (), Dir>
 where
     Step: OutputPin<Error = OutputPinError>,
 {
     type WithStepControl =
-        A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
+        A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>;
 
     fn enable_step_control(self, step: Step) -> Self::WithStepControl {
         A4988 {
             enable: self.enable,
-            fault: self.fault,
             sleep: self.sleep,
             reset: self.reset,
             mode0: self.mode0,
@@ -198,8 +193,8 @@ where
     }
 }
 
-impl<Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError> StepTrait
-    for A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    StepTrait for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Step: OutputPin<Error = OutputPinError>,
 {
@@ -215,12 +210,14 @@ where
     }
 }
 
-impl<Sleep, OutputPinError> EnableSleepModeControl<Sleep>
-    for A4988<(), (), Sleep, (), (), (), (), (), ()>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    EnableSleepModeControl<Sleep>
+    for A4988<Enable, (), Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Sleep: OutputPin<Error = OutputPinError>,
 {
-    type WithSleepModeControl = A4988<(), (), Sleep, (), (), (), (), (), ()>;
+    type WithSleepModeControl =
+        A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>;
 
     fn enable_sleep_mode_control(
         self,
@@ -228,7 +225,6 @@ where
     ) -> Self::WithSleepModeControl {
         A4988 {
             enable: self.enable,
-            fault: self.fault,
             sleep,
             reset: self.reset,
             mode0: self.mode0,
@@ -240,8 +236,8 @@ where
     }
 }
 
-impl<Sleep, OutputPinError> SetSleepMode
-    for A4988<(), (), Sleep, (), (), (), (), (), ()>
+impl<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir, OutputPinError>
+    SetSleepMode for A4988<Enable, Sleep, Reset, Mode0, Mode1, Mode2, Step, Dir>
 where
     Sleep: OutputPin<Error = OutputPinError>,
 {
