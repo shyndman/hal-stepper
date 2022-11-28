@@ -49,7 +49,7 @@ pub trait SetStepMode {
     const HOLD_TIME: Nanoseconds;
 
     /// The error that can occur while using this trait
-    type Error;
+    type Error: fmt::Debug;
 
     /// The type that defines the microstepping mode
     ///
@@ -93,7 +93,7 @@ pub trait SetDirection {
     type Dir: OutputPin;
 
     /// The error that can occur while accessing the DIR pin
-    type Error;
+    type Error: core::fmt::Debug;
 
     /// Provides access to the DIR pin
     fn dir(&mut self) -> Result<&mut Self::Dir, Self::Error>;
@@ -120,7 +120,7 @@ pub trait Step {
     type Step: OutputPin;
 
     /// The error that can occur while accessing the STEP pin
-    type Error;
+    type Error: core::fmt::Debug;
 
     /// Provides access to the STEP pin
     fn step(&mut self) -> Result<&mut Self::Step, Self::Error>;
@@ -208,7 +208,7 @@ pub trait SetSleepMode {
     type Sleep: OutputPin;
 
     /// The error that can occur while accessing the SLEEP pin
-    type Error;
+    type Error: core::fmt::Debug;
 
     /// Provides access to the SLEEP pin
     fn sleep(&mut self) -> Result<&mut Self::Sleep, Self::Error>;

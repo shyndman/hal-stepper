@@ -65,6 +65,7 @@ where
     Mode0: OutputPin<Error = OutputPinError>,
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     type WithStepModeControl =
         DRV8825<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
@@ -94,6 +95,7 @@ where
     Mode0: OutputPin<Error = OutputPinError>,
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     // 7.6 Timing Requirements (page 7)
     // https://www.ti.com/lit/ds/symlink/drv8825.pdf

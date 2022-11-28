@@ -73,6 +73,7 @@ where
     Mode2: OutputPin<Error = OutputPinError>,
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     type WithStepModeControl =
         STSPIN220<EnableFault, StandbyReset, Mode1, Mode2, StepMode3, DirMode4>;
@@ -108,6 +109,7 @@ where
     Mode2: OutputPin<Error = OutputPinError>,
     StepMode3: OutputPin<Error = OutputPinError>,
     DirMode4: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     const SETUP_TIME: Nanoseconds = Nanoseconds::from_ticks(1_000);
     const HOLD_TIME: Nanoseconds = Nanoseconds::from_ticks(100_000);

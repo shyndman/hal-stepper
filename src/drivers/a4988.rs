@@ -66,6 +66,7 @@ where
     Mode0: OutputPin<Error = OutputPinError>,
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     type WithStepModeControl =
         A4988<(), (), (), Reset, Mode0, Mode1, Mode2, Step, Dir>;
@@ -95,6 +96,7 @@ where
     Mode0: OutputPin<Error = OutputPinError>,
     Mode1: OutputPin<Error = OutputPinError>,
     Mode2: OutputPin<Error = OutputPinError>,
+    OutputPinError: core::fmt::Debug,
 {
     // Timing Requirements (page 6)
     // https://www.pololu.com/file/0J450/A4988.pdf

@@ -10,7 +10,7 @@ use fugit::TimerDurationU32 as TimerDuration;
 /// The `Delay` parameter specifies the type of delay value used by RampMaker.
 pub trait DelayToTicks<Delay, const TIMER_HZ: u32> {
     /// The error that can happen during conversion
-    type Error;
+    type Error: core::fmt::Debug;
 
     /// Convert delay value into timer duration
     fn delay_to_ticks(
